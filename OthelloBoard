@@ -1,0 +1,166 @@
+package OthelloGame;
+
+public class OthelloBoard {
+	int[][] board = new int[8][8];
+	private int gameStatus;
+	int countPlayer1=2;
+	int countPlayer2=2;
+	private int player1Code;
+	private int player2Code;
+	
+	public OthelloBoard(int code1, int code2){
+		gameStatus = 3;
+		player1Code = code1;
+		player2Code = code2;
+		this.board[3][3] = 1; // player 1 is white
+		this.board[3][4] = 2;
+		this.board[4][4] = 1;
+		this.board[4][3] = 2;
+	}
+	
+	public int gameStatus(){
+		return gameStatus;
+	}
+	
+	public boolean move(int player, int x, int y){
+		if(board[x][y] != 0)
+			return false;
+		int check=0;
+		int countp=0;
+		int[][] directions = {{0,0,1,1,1,-1,-1,-1},{1,-1,0,1,-1,0,-1,1}};
+				int count=0; check=0;
+				int opponent=0;
+				if(player == 1)
+					opponent = 0;
+				else
+					opponent = 1;
+				for(int i=0, j=0; i<8 && j<8; i++, j++){
+					//System.out.println(i);
+					count = 0;
+					int xincfin = directions[0][i];
+					int yincfin = directions[1][j];
+					int xinc = x+xincfin, yinc = y+yincfin;
+					for(; xinc<8 && xinc>=0 && yinc>=0 && yinc<8 ;xinc += xincfin, yinc += yincfin){
+						if(board[xinc][yinc]==player && count>0){
+							//System.out.println(count);
+							int xcurr = xinc;
+							int ycurr = yinc;
+							
+							for(;xcurr!=x || ycurr!=y;xcurr = xcurr-xincfin, ycurr = ycurr - yincfin){
+								//System.out.println("looping");
+								if(board[xcurr][ycurr]!=player){
+									countp++;
+								}
+								board[xcurr][ycurr] = player;
+							}
+							board[x][y] = player;
+							check = 1;
+							break;
+						}
+						else if(board[xinc][yinc]==0){
+							break;
+						}
+						if(board[xinc][yinc]==player){
+							break;
+						}
+						if(board[xinc][yinc]!=player)
+							count++;
+						//System.out.println(count);
+					}
+				}
+				if(player==1){
+					this.countPlayer1 += (countp+1);
+					this.countPlayer2 -= (countp);
+				}
+				else{
+					this.countPlayer2 += (countp+1);
+					this.countPlayer1 -= (countp);
+				}
+				System.out.println("player1 count: "+this.countPlayer1);
+				System.out.println("player2 count: "+this.countPlayer2);
+				if(this.countPlayer1+this.countPlayer2 >= 64){
+					if(this.countPlayer1>this.countPlayer2){
+						this.gameStatus = 1;
+					}
+					else if(this.countPlayer1<this.countPlayer2){
+						this.gameStatus = 2;
+					}
+					else if(this.countPlayer1 == this.countPlayer2){
+						this.gameStatus = 0;
+					}
+				}
+				if(check==1)
+					return true;
+				else
+					return false;
+	}
+	
+	public boolean move(int[][]board ,int player, int x, int y){
+		if(board[x][y] != 0)
+			return false;
+		int check=0;
+		int countp=0;
+		int[][] directions = {{0,0,1,1,1,-1,-1,-1},{1,-1,0,1,-1,0,-1,1}};
+				int count=0; check=0;
+				int opponent=0;
+				if(player == 1)
+					opponent = 0;
+				else
+					opponent = 1;
+				for(int i=0, j=0; i<8 && j<8; i++, j++){
+					//System.out.println(i);
+					count = 0;
+					int xincfin = directions[0][i];
+					int yincfin = directions[1][j];
+					int xinc = x+xincfin, yinc = y+yincfin;
+					for(; xinc<8 && xinc>=0 && yinc>=0 && yinc<8 ;xinc += xincfin, yinc += yincfin){
+						if(board[xinc][yinc]==player && count>0){
+							int xcurr = xinc;
+							int ycurr = yinc;
+							
+							for(;xcurr!=x || ycurr!=y;xcurr = xcurr-xincfin, ycurr = ycurr - yincfin){
+								//System.out.println("looping");
+								board[xcurr][ycurr] = player;
+								countp++;
+							}
+							board[x][y] = player;
+							countp++;
+							check = 1;
+							break;
+						}
+						else if(board[xinc][yinc]==0){
+							break;
+						}
+						if(board[xinc][yinc]==player){
+							break;
+						}
+						if(board[xinc][yinc]!=player)
+							count++;
+					}
+				}
+//				if(player==1){
+//					this.countPlayer1 += (countp+1);
+//					this.countPlayer2 -= (countp);
+//				}
+//				else{
+//					this.countPlayer2 += (countp+1);
+//					this.countPlayer1 -= (countp);
+//				}
+				if(this.countPlayer1+this.countPlayer2 == 64){
+					if(this.countPlayer1>this.countPlayer2){
+						this.gameStatus = 1;
+					}
+					else if(this.countPlayer1<this.countPlayer2){
+						this.gameStatus = 2;
+					}
+					else if(this.countPlayer1 == this.countPlayer2){
+						this.gameStatus = 0;
+					}
+				}
+				if(check==1)
+					return true;
+				else
+					return false;
+	}
+	
+}
