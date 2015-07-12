@@ -1,0 +1,11 @@
+package OthelloGame;
+
+public class Player {
+	String name;
+	int code; // 1 for black and 2 for 	white
+	
+	public Player(String name, int code){
+		this.name = name;
+		this.code = code;
+	}
+}
