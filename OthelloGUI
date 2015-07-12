@@ -1,0 +1,414 @@
+package OthelloGame;
+
+import java.awt.Color;
+import java.awt.ComponentOrientation;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.UIManager;
+
+public class OthelloGUI extends JFrame implements ActionListener {
+
+	private static final long serialVersionUID = 1L;
+	JPanel[] row = new JPanel[20];
+    JButton[] button = new JButton[64];
+    String s1, s2;
+    Othello backEnd;
+    String[] buttonString = {"", "", "", "",
+                             "", "", "", "",
+                             "", "", "", "",
+                             "", "", "", "",
+                             "", "", "", "",
+                             "", "", "", "",
+                             "", "", "", "",
+                             "", "", "", "",
+                             "", "", "", "",
+                             "", "", "", "",
+                             "", "", "", "",
+                             "", "", "", "",
+                             "", "", "", "",
+                             "", "", "", "",
+                             "", "", "", "",
+                             "", "", "", "",};
+    int[] dimW = {300,50,100,90};
+    int[] dimH = {40, 50};
+    Dimension displayDimension = new Dimension(dimW[0], dimH[0]);
+    Dimension regularDimension = new Dimension(dimW[1], dimH[1]);
+    Dimension rColumnDimension = new Dimension(dimW[1], dimH[1]);
+    Dimension zeroButDimension = new Dimension(dimW[1], dimH[1]);
+    boolean[] function = new boolean[10];
+    double[] temporary = {0, 0};
+    JTextArea display = new JTextArea(3,30);
+    JTextArea player1Score = new JTextArea(3, 10);
+    JTextArea player2Score = new JTextArea(3, 10);
+    Font font = new Font("Times new Roman", Font.BOLD, 14);
+    String namep1, namep2;
+    
+    
+    OthelloGUI() {
+        super("Reversi Game : Designed by Mayank Rathee (IIT BHU)");
+        setDesign();
+        setSize(550, 700);
+        setResizable(false);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        GridLayout grid = new GridLayout(10,8);
+        setLayout(grid);
+        
+        for(int i = 0; i < 9; i++)
+            function[i] = false;
+        
+        FlowLayout f1 = new FlowLayout(FlowLayout.CENTER);
+        FlowLayout f2 = new FlowLayout(FlowLayout.CENTER,1,1);
+        for(int i = 0; i < 10; i++)
+            row[i] = new JPanel();
+        row[0].setLayout(f1);
+        row[9].setLayout(f1);
+        for(int i = 1; i < 9; i++)
+            row[i].setLayout(f2);
+        
+        for(int i = 0; i < 64; i++) {
+            button[i] = new JButton();
+            button[i].setText(buttonString[i]);
+            button[i].setFont(font);
+            button[i].addActionListener(this);
+        }
+        
+        button[27].setBackground(Color.black);
+        button[28].setBackground(Color.white);
+        button[35].setBackground(Color.white);
+        button[36].setBackground(Color.black);
+        
+        display.setFont(font);
+        display.setEditable(true);
+        display.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+        display.setPreferredSize(displayDimension);
+        
+        for(int i = 0; i < 64; i++)
+            button[i].setPreferredSize(regularDimension);
+        
+        row[0].add(display);
+        add(row[0]);
+        row[9].add(player1Score);
+        add(row[9]);
+        row[9].add(player2Score);
+        add(row[9]);
+        
+        for(int i = 0; i < 8; i++)
+            row[1].add(button[i]);
+        //row[1].add(button[14]);
+        add(row[1]);
+        
+        for(int i = 8; i < 16; i++)
+            row[2].add(button[i]);
+        //row[2].add(button[15]);
+        add(row[2]);
+        
+        for(int i = 16; i < 24; i++)
+            row[3].add(button[i]);
+        //row[3].add(button[16]);
+        add(row[3]);
+        
+        //row[4].add(button[18]);
+        for(int i = 24; i < 32; i++)
+            row[4].add(button[i]);
+        //row[4].add(button[17]);
+        add(row[4]);
+        
+        //row[5].add(button[18]);
+        for(int i = 32; i < 40; i++)
+            row[5].add(button[i]);
+        //row[4].add(button[17]);
+        add(row[5]);
+        
+        //row[4].add(button[18]);
+        for(int i = 40; i < 48; i++)
+            row[6].add(button[i]);
+        //row[4].add(button[17]);
+        add(row[6]);
+        
+        //row[4].add(button[18]);
+        for(int i = 48; i < 56; i++)
+            row[7].add(button[i]);
+        //row[4].add(button[17]);
+        add(row[7]);
+        
+        //row[4].add(button[18]);
+        for(int i = 56; i < 64; i++)
+            row[8].add(button[i]);
+        //row[4].add(button[17]);
+        add(row[8]);
+        
+        setVisible(true);
+        display.setText("Player1 enter your name: ");
+        while(display.getText().length()<=29){
+        	
+        }
+        namep1 = display.getText().substring(24);
+        display.setText("Player2 enter your name: ");
+        while(display.getText().length()<=29){
+        	
+        }
+        namep2 = display.getText().substring(24);
+        display.setText(namep1 + " your turn:");
+        player1Score.setText(namep1+" Score : 2");
+        player2Score.setText(namep2+" Score : 2");
+        backEnd = new Othello(namep1, namep2);
+        int code1;
+        if(backEnd.isPlayer1Turn==true){
+        	code1=1;
+        }
+        else{
+        	code1=2;
+        }
+        backEnd.possibleMoves(code1);
+        for(int i=0; i<8; i++){
+        	for(int j=0; j<8; j++){
+        		int code = backEnd.board.board[i][j];
+        		if(backEnd.boardCopy[i][j]==5){
+        			button[(8*i)+j].setBackground(Color.orange);
+        		}
+        	}
+        }
+        
+    }
+    
+    public void clear() {
+        try {
+            display.setText("");
+            for(int i = 0; i < 9; i++)
+                function[i] = false;
+            for(int i = 0; i < 9; i++)
+                temporary[i] = 0;
+        } catch(NullPointerException e) {  
+        }
+    }
+    
+    public final void setDesign() {
+        try {
+            UIManager.setLookAndFeel(
+                    "com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+        } catch(Exception e) {   
+        }
+    }
+    @Override
+    public void actionPerformed(ActionEvent ae) {	
+    	
+    	
+    	display.setText(backEnd.toPrint);
+    	
+    	if(ae.getSource() == button[0])
+        	backEnd.startGame(0, 0);
+        if(ae.getSource() == button[1])
+            backEnd.startGame(0, 1);
+        if(ae.getSource() == button[2])
+            backEnd.startGame(0, 2);
+        if(ae.getSource() == button[3])
+            backEnd.startGame(0, 3);
+        if(ae.getSource() == button[4])
+            backEnd.startGame(0, 4);
+        if(ae.getSource() == button[5])
+            backEnd.startGame(0, 5);
+        if(ae.getSource() == button[6])
+            backEnd.startGame(0, 6);
+        if(ae.getSource() == button[7])
+            backEnd.startGame(0, 7);
+        if(ae.getSource() == button[8])
+            backEnd.startGame(1, 0);
+        if(ae.getSource() == button[9])
+            backEnd.startGame(1, 1);
+        if(ae.getSource() == button[10])
+            backEnd.startGame(1, 2);
+        if(ae.getSource() == button[11])
+            backEnd.startGame(1, 3);
+        if(ae.getSource() == button[12])
+            backEnd.startGame(1, 4);
+        if(ae.getSource() == button[13])
+            backEnd.startGame(1, 5);
+        if(ae.getSource() == button[14])
+            backEnd.startGame(1, 6);
+        if(ae.getSource() == button[15])
+            backEnd.startGame(1, 7);
+        if(ae.getSource() == button[16])
+            backEnd.startGame(2, 0);
+        if(ae.getSource() == button[17])
+            backEnd.startGame(2, 1);
+        if(ae.getSource() == button[18])
+            backEnd.startGame(2, 2);
+        if(ae.getSource() == button[19])
+            backEnd.startGame(2, 3);
+        if(ae.getSource() == button[20])
+            backEnd.startGame(2, 4);
+        if(ae.getSource() == button[21])
+            backEnd.startGame(2, 5);
+        if(ae.getSource() == button[22])
+            backEnd.startGame(2, 6);
+        if(ae.getSource() == button[23])
+            backEnd.startGame(2, 7);
+        if(ae.getSource() == button[24])
+            backEnd.startGame(3, 0);
+        if(ae.getSource() == button[25])
+            backEnd.startGame(3, 1);
+        if(ae.getSource() == button[26])
+            backEnd.startGame(3, 2);
+        if(ae.getSource() == button[27])
+            backEnd.startGame(3, 3);
+        if(ae.getSource() == button[28])
+            backEnd.startGame(3, 4);
+        if(ae.getSource() == button[29])
+            backEnd.startGame(3, 5);
+        if(ae.getSource() == button[30])
+            backEnd.startGame(3, 6);
+        if(ae.getSource() == button[31])
+            backEnd.startGame(3, 7);
+        if(ae.getSource() == button[32])
+            backEnd.startGame(4, 0);
+        if(ae.getSource() == button[33])
+            backEnd.startGame(4, 1);
+        if(ae.getSource() == button[34])
+            backEnd.startGame(4, 2);
+        if(ae.getSource() == button[35])
+            backEnd.startGame(4, 3);
+        if(ae.getSource() == button[36])
+            backEnd.startGame(4, 4);
+        if(ae.getSource() == button[37])
+            backEnd.startGame(4, 5);
+        if(ae.getSource() == button[38])
+            backEnd.startGame(4, 6);
+        if(ae.getSource() == button[39])
+            backEnd.startGame(4, 7);
+        if(ae.getSource() == button[40])
+            backEnd.startGame(5, 0);
+        if(ae.getSource() == button[41])
+            backEnd.startGame(5, 1);
+        if(ae.getSource() == button[42])
+            backEnd.startGame(5, 2);
+        if(ae.getSource() == button[43])
+            backEnd.startGame(5, 3);
+        if(ae.getSource() == button[44])
+            backEnd.startGame(5, 4);
+        if(ae.getSource() == button[45])
+            backEnd.startGame(5, 5);
+        if(ae.getSource() == button[46])
+            backEnd.startGame(5, 6);
+        if(ae.getSource() == button[47])
+            backEnd.startGame(5, 7);
+        if(ae.getSource() == button[48])
+            backEnd.startGame(6, 0);
+        if(ae.getSource() == button[49])
+            backEnd.startGame(6, 1);
+        if(ae.getSource() == button[50])
+            backEnd.startGame(6, 2);
+        if(ae.getSource() == button[51])
+            backEnd.startGame(6, 3);
+        if(ae.getSource() == button[52])
+            backEnd.startGame(6, 4);
+        if(ae.getSource() == button[53])
+            backEnd.startGame(6, 5);
+        if(ae.getSource() == button[54])
+            backEnd.startGame(6, 6);
+        if(ae.getSource() == button[55])
+            backEnd.startGame(6, 7);
+        if(ae.getSource() == button[56])
+            backEnd.startGame(7, 0);
+        if(ae.getSource() == button[57])
+            backEnd.startGame(7, 1);
+        if(ae.getSource() == button[58])
+            backEnd.startGame(7, 2);
+        if(ae.getSource() == button[59])
+            backEnd.startGame(7, 3);
+        if(ae.getSource() == button[60])
+            backEnd.startGame(7, 4);
+        if(ae.getSource() == button[61])
+            backEnd.startGame(7, 5);
+        if(ae.getSource() == button[62])
+            backEnd.startGame(7, 6);
+        if(ae.getSource() == button[63])
+            backEnd.startGame(7, 7);
+        
+    	player1Score.setText(namep1+" Score : "+backEnd.board.countPlayer1);
+    	player2Score.setText(namep2+" Score : "+backEnd.board.countPlayer2);
+    	if(backEnd.board.countPlayer1+backEnd.board.countPlayer2==64){
+    		if(backEnd.board.countPlayer1>backEnd.board.countPlayer2){
+    			display.setText(namep1+" Wins!!");
+    		}
+    		else if(backEnd.board.countPlayer1<backEnd.board.countPlayer2){
+    			display.setText(namep2+" Wins!!");
+    		}
+    		else{
+    			display.setText(" Draw Match !!!");
+    		}
+    	}
+        
+        for(int i=0; i<8; i++){
+        	for(int j=0; j<8; j++){
+        		int code = backEnd.board.board[i][j];
+//        		if(backEnd.boardCopy[i][j]==5){
+//        			button[(8*i)+j].setBackground(Color.orange);
+//        		}
+        		if(backEnd.boardCopy[i][j]==5){
+        			button[(8*i)+j].setBackground(null);
+        		}
+        		if(code==1){
+        			button[(8*i)+j].setBackground(Color.black);
+        		}
+        		else if(code==2){
+        			button[(8*i)+j].setBackground(Color.white);
+        		}
+        	}
+        }
+        int code1;
+        int count = 0;
+        if(backEnd.isPlayer1Turn==true){
+        	code1=1;
+        }
+        else{
+        	code1=2;
+        }
+        backEnd.possibleMoves(code1);
+        for(int i=0; i<8; i++){
+        	for(int j=0; j<8; j++){
+        		int code = backEnd.board.board[i][j];
+        		if(backEnd.boardCopy[i][j]==5){
+        			button[(8*i)+j].setBackground(Color.orange);
+        			count++;
+        		}
+        	}
+        }
+        
+        if(count==0){
+        	
+        
+        	if(backEnd.isPlayer1Turn==true){
+            	code1=2;
+            }
+            else{
+            	code1=1;
+            }
+            backEnd.possibleMoves(code1);
+            for(int i=0; i<8; i++){
+            	for(int j=0; j<8; j++){
+            		int code = backEnd.board.board[i][j];
+            		if(backEnd.boardCopy[i][j]==5){
+            			button[(8*i)+j].setBackground(Color.orange);
+            		}
+            	}
+            }
+        }
+    	
+    }
+	
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		OthelloGUI app = new OthelloGUI();
+		//app.backEnd.startGame();
+	}
+
+}
