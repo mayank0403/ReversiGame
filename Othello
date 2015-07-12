@@ -1,0 +1,293 @@
+package OthelloGame;
+
+import java.util.HashMap;
+import java.util.Scanner;
+
+public class Othello {
+	
+	Player player1;
+	Player player2;
+	OthelloBoard board;
+	Boolean player1Done = false;
+	HashMap<Integer, Integer> optionsMap = new HashMap<>();
+	String toPrint; 
+	
+	public void takeInput(String name){
+		Scanner s = new Scanner(System.in);
+		//System.out.println("Enter the player name : ");
+		//toPrint = "Enter the player name : ";
+		if(player1!=null){
+			while(name==player1.name){
+				System.out.println("Enter a valid name : ");
+				name = s.next();
+			}
+		}
+		
+		int playerCode;
+		if(player1Done==false){
+			playerCode = 1;
+			player1 = new Player(name, playerCode);
+			player1Done = true;
+		}
+		else{
+			playerCode = 2;
+			player2 = new Player(name, playerCode);
+		}
+		
+	}
+	
+	public void copyBoard(int[][] copy){
+		for(int i=0; i<8; i++){
+			for(int j=0; j<8; j++){
+//				if(board.board[i][j]==5){
+//					copy[i][j] = 0;
+//				}
+				//else
+					copy[i][j] = board.board[i][j];
+			}
+		}
+	}
+	
+	public boolean checkIfMovePossible(int[][] board, int player, int x, int y){
+		//System.out.println("in here");
+		if(board[x][y] != 0){
+			//System.out.println("fck");
+			return false;}
+		int check=0;
+		int countp=0;
+		int[][] directions = {{0,0,1,1,1,-1,-1,-1},{1,-1,0,1,-1,0,-1,1}};
+				int count=0; check=0;
+				int opponent=0;
+				if(player == 1)
+					opponent = 0;
+				else
+					opponent = 1;
+				for(int i=0, j=0; i<8 && j<8; i++, j++){
+					//System.out.println(i);
+					count = 0;
+					boolean selfFound = false;
+					int xincfin = directions[0][i];
+					int yincfin = directions[1][j];
+					int xinc = x+xincfin, yinc = y+yincfin;
+					for(; xinc<8 && xinc>=0 && yinc>=0 && yinc<8 ;xinc += xincfin, yinc += yincfin){
+						if(board[xinc][yinc]==player && count>0 && selfFound == false){
+							int xcurr = xinc;
+							int ycurr = yinc;
+							
+//							for(;xcurr!=x || ycurr!=y;xcurr = xcurr-xincfin, ycurr = ycurr - yincfin){
+//								//System.out.println("looping");
+//								board[xcurr][ycurr] = player;
+//								countp++;
+//							}
+							//board[x][y] = player;
+							countp++;
+							check = 1;
+							break;
+						}
+						else if(board[xinc][yinc]==0){
+							break;
+						}
+						if(board[xinc][yinc]==player){
+							selfFound = true;
+							break;
+						}
+						if(board[xinc][yinc]!=player)
+							count++;
+					}
+				}
+				//System.out.println("check : " + check);
+				if(check==1)
+					return true;
+				else
+					return false;
+	}
+	
+	int[][] boardCopy = new int[8][8];
+	
+	public boolean possibleMoves(int code){
+//		HashMap<Integer, Integer> optionsMap = new HashMap<>();
+//		for(int i=0; i<8; i++){
+//			for(int j=0; j<2; j++){
+//				options[i][j] = -1;
+//			}
+//		}
+		boolean answer = false;
+		
+		boolean isValidMove = false;
+		copyBoard(boardCopy);
+		for(int i=0; i<8; i++){
+			for(int j=0; j<8; j++){
+				if(boardCopy[i][j]!=0 || boardCopy[i][j]==5){
+				}
+				else if(boardCopy[i][j]==0){
+					isValidMove = checkIfMovePossible(board.board, code, i, j);
+					if(isValidMove==true){
+						answer = true;
+						//System.out.println("possible x :" + i + "possible y" + j);
+						//board.board[i][j] = 5;
+						boardCopy[i][j] = 5;
+						optionsMap.put(i, j);
+						//copyBoard(boardCopy);
+					}
+				}
+			}
+		}
+		//printCustom(boardCopy);
+		return answer;
+	}
+	
+	Boolean isPlayer1Turn = true;
+	boolean couldNotPlay = false;
+	
+	public void startGame(int x, int y){
+		//System.out.println(board.move(1, 2, 2));
+		couldNotPlay = false;
+		toPrint = "";
+		if(boardCopy[x][y]!=5){
+			return;
+		}
+		Scanner s = new Scanner(System.in);
+		Player currentPlayer;
+		
+		{
+			//print();
+			if(isPlayer1Turn){
+				currentPlayer = player1;
+			}
+			else{
+				currentPlayer = player2;
+			}
+			//System.out.println(possibleMoves(currentPlayer.code));
+			//System.out.println(board.move(1, 2, 2));
+			//print();
+			if(possibleMoves(currentPlayer.code)!=true){
+				System.out.println(currentPlayer.name + " you have no possible moves left.");
+				toPrint = currentPlayer.name + " you have no possible moves left.";
+				if(currentPlayer==player1){
+					currentPlayer = player2;
+					possibleMoves(currentPlayer.code);
+				}
+				else{
+					currentPlayer = player1;
+					possibleMoves(currentPlayer.code);
+				}
+				isPlayer1Turn = !isPlayer1Turn;
+				couldNotPlay = true;
+				return;
+			}
+			System.out.println(currentPlayer.name + " your turn : ");
+			toPrint += currentPlayer.name + " your turn : ";
+			//System.out.println("Enter x : ");
+			//int x = s.nextInt();
+			//System.out.println("Enter y : ");
+			//int y = s.nextInt();
+			while(board.move(currentPlayer.code, x, y)!=true){
+//				System.out.println("Enter valid x : ");
+//				x = s.nextInt();
+//				System.out.println("Enter valid y : ");
+//				y = s.nextInt();
+				//startGame(x, y);
+			}
+			isPlayer1Turn = !isPlayer1Turn;
+		}
+		int status = board.gameStatus();
+		if(status == 1){
+			System.out.println(player1.name + "wins!! ");
+			toPrint = player1.name + "wins!! ";
+		}
+		else if(status == 2){
+			System.out.println(player2.name + "wins!! ");
+			toPrint = player2.name + "wins!! ";
+		}
+		else if(status == 0){
+			System.out.println("Draw Match!! ");
+			toPrint = "Draw Match!!";
+		}
+	}
+	
+	public void startGame(){
+		//System.out.println(board.move(1, 2, 2));
+		Scanner s = new Scanner(System.in);
+		Player currentPlayer;
+		Boolean isPlayer1Turn = true;
+		while(board.gameStatus()==3){
+			//print();
+			if(isPlayer1Turn){
+				currentPlayer = player1;
+			}
+			else{
+				currentPlayer = player2;
+			}
+			//System.out.println(possibleMoves(currentPlayer.code));
+			//System.out.println(board.move(1, 2, 2));
+			//print();
+			if(possibleMoves(currentPlayer.code)!=true){
+				System.out.println(currentPlayer.name + " you have no possible moves left.");
+				if(currentPlayer==player1){
+					currentPlayer = player2;
+					possibleMoves(currentPlayer.code);
+				}
+				else{
+					currentPlayer = player1;
+					possibleMoves(currentPlayer.code);
+				}
+				isPlayer1Turn = !isPlayer1Turn;
+			}
+			System.out.println(currentPlayer.name + " your turn : ");
+			System.out.println("Enter x : ");
+			int x = s.nextInt();
+			System.out.println("Enter y : ");
+			int y = s.nextInt();
+			while(board.move(currentPlayer.code, x, y)!=true){
+//				System.out.println("Enter valid x : ");
+//				x = s.nextInt();
+//				System.out.println("Enter valid y : ");
+//				y = s.nextInt();
+				//startGame(x, y);
+			}
+			isPlayer1Turn = !isPlayer1Turn;
+		}
+		int status = board.gameStatus();
+		if(status == 1){
+			System.out.println(player1.name + "wins!! ");
+		}
+		else if(status == 2){
+			System.out.println(player2.name + "wins!! ");
+		}
+		else if(status == 0){
+			System.out.println("Draw Match!! ");
+		}
+	}
+	
+	public void print(){
+		for(int i=0; i<8; i++){
+			for(int j=0; j<8; j++){
+				System.out.print(board.board[i][j] + " ");
+			}
+			System.out.println();
+		}
+	}
+	
+//	public void printCustom(int[][] boardcopy){
+//		for(int i=0; i<8; i++){
+//			for(int j=0; j<8; j++){
+//				System.out.print(boardcopy[i][j] + " ");
+//			}
+//			System.out.println();
+//		}
+//	}
+	
+	public Othello(String namep1, String namep2){
+		toPrint = namep2+" your turn : ";
+		takeInput(namep1);
+		takeInput(namep2);
+		board = new OthelloBoard(player1.code, player2.code);
+	}
+	
+	public static void main(String args[]){
+		//Othello game = new Othello();
+		//game.startGame();
+	}
+	
+}
+
